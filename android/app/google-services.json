@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "378944824239",
+    "project_id": "ffking-bed52",
+    "storage_bucket": "ffking-bed52.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:378944824239:android:6b12c71fadbf5956d7455a",
+        "android_client_info": {
+          "package_name": "com.example.ff"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpRU24qTSxFOG1-niVd4PgcODZaLqMGKw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
