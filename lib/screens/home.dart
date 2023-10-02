@@ -722,7 +722,7 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'FF King',
+              'FF Brothers',
               style: GoogleFonts.dancingScript(
                 fontSize: 25.sp,
                 fontWeight: FontWeight.bold,
@@ -803,9 +803,12 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       Navigator.push(
                         context,
+                        MaterialPageRoute(builder: (context) => AddPoint()),
+                        // MaterialPageRoute(builder: (context) => ChosePayment()),
+
                         // MaterialPageRoute(builder: (context) => AddPoint()),
-                        // MaterialPageRoute(builder: (context) => UPIAddMoney()),
-                        MaterialPageRoute(builder: (context) => UPIpage()),
+                        // MaterialPageRoute(builder: (context) => UPIAddMoney(amount: 200,)),
+                        // MaterialPageRoute(builder: (context) => UPIpage()),
                       );
                     },
                     child: Container(
@@ -972,7 +975,8 @@ class _HomePageState extends State<HomePage> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.sp),
-                        color: Colors.yellow.shade800,
+                        // color: Colors.yellow.shade800,
+                        color: Color(0xFFFF0000),
                       ),
                       padding: EdgeInsets.all(10.sp),
                       child: Row(
@@ -1004,7 +1008,8 @@ class _HomePageState extends State<HomePage> {
                   return Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8.sp),
-                      color: Colors.yellow.shade800, // You can use any color you prefer
+                      // color: Colors.yellow.shade800, // You can use any color you prefer
+                      color: Color(0xFFFF0000), // You can use any color you prefer
                     ),
                     padding: EdgeInsets.all(10.sp),
                     child: Row(

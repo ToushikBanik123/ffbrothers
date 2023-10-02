@@ -16,10 +16,11 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.4+4
+version: 1.0.6+6
 
 environment:
-  sdk: '>=3.2.0-12.0.dev <4.0.0'
+#  sdk: '>=3.2.0-12.0.dev <4.0.0'
+  sdk: '>=3.1.2 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -44,9 +45,15 @@ dependencies:
   fluttertoast: ^8.2.2
   intl: ^0.18.1
   url_launcher: ^6.1.14
-  firebase_core: ^2.15.1
-  firebase_auth: ^4.9.0
+  firebase_core: ^2.16.0
+  firebase_auth: ^4.10.0
   upi_india: ^3.0.1
+  country_picker: ^2.0.21
+  pinput: ^2.2.16
+  lottie: ^2.6.0
+  firebase_messaging: ^14.6.8
+  flutter_local_notifications: ^15.1.1
+  app_settings: ^5.0.0
 
 dev_dependencies:
   flutter_test:
@@ -82,6 +89,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/images/
+    - assets/animation/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -386,8 +386,9 @@ class _WithdrawlState extends State<Withdrawl> {
     };
 
     final response = await http.post(uri, body: body);
+    print(response.statusCode.toString());
 
-    if (response.statusCode == 200) {
+    // if (response.statusCode == 500) {
       final data = json.decode(response.body);
       final String message = data['message'];
 
@@ -395,8 +396,8 @@ class _WithdrawlState extends State<Withdrawl> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Withdrawal Request"),
-            content: Text(message),
+            title: Text("Withdrawal Request Done"),
+            // content: Text(message),
             actions: [
               TextButton(
                 onPressed: () {
@@ -411,25 +412,25 @@ class _WithdrawlState extends State<Withdrawl> {
           );
         },
       );
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Error"),
-            content: Text("An error occurred while processing your request."),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text("OK"),
-              ),
-            ],
-          );
-        },
-      );
-    }
+    // } else {
+    //   showDialog(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return AlertDialog(
+    //         title: Text("Error"),
+    //         content: Text("An error occurred while processing your request."),
+    //         actions: [
+    //           TextButton(
+    //             onPressed: () {
+    //               Navigator.of(context).pop();
+    //             },
+    //             child: Text("OK"),
+    //           ),
+    //         ],
+    //       );
+    //     },
+    //   );
+    // }
   }
 
   void _showErrorSnackBar(String errorMessage) {

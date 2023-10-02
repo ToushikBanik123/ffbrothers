@@ -25,7 +25,7 @@ class _UPIpageState extends State<UPIpage> {
   void _validateAmount(String value) {
     final amount = int.tryParse(value);
     setState(() {
-      _isValidAmount = amount != null && amount >= 500;
+      _isValidAmount = amount != null && amount >= 300;
     });
   }
   @override
@@ -39,7 +39,7 @@ class _UPIpageState extends State<UPIpage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Minimum Deposit Amount \₹ 500',
+            'Minimum Deposit Amount \₹ 300',
             style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 20.h),
@@ -71,7 +71,7 @@ class _UPIpageState extends State<UPIpage> {
                   borderRadius: BorderRadius.circular(50.r),
                 ),
                 hintText: 'Enter Amount',
-                errorText: !_isValidAmount ? 'Amount must be at least ₹ 500' : null,
+                errorText: !_isValidAmount ? 'Amount must be at least ₹ 300' : null,
               ),
             ),
           ),

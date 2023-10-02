@@ -35,6 +35,8 @@ class _SingleBetPageState extends State<SingleBetPage>
   String? editedBetNumber;
   String? editedBetAmount;
   int? editedBetIndex;
+  double? totalBetAmount = 0.0;
+  bool isLoading = false;
 
   Future<void> _fetchBalance() async {
     final uri =
@@ -133,6 +135,9 @@ class _SingleBetPageState extends State<SingleBetPage>
       },
     );
   }
+  bool isDuplicateBet(String betNumber) {
+    return betHistory.any((bet) => bet['bet_number'] == betNumber);
+  }
 
   @override
   void initState() {
@@ -150,7 +155,7 @@ class _SingleBetPageState extends State<SingleBetPage>
       appBar: AppBar(
         backgroundColor: Colors.red,
         title: Text(
-          'FF King',
+          'FF Brothers',
           style: GoogleFonts.dancingScript(
             fontSize: 25.sp,
             fontWeight: FontWeight.bold,
@@ -182,7 +187,7 @@ class _SingleBetPageState extends State<SingleBetPage>
           ),
         ],
       ),
-      body: Column(
+      body:   isLoading ? Center(child: CircularProgressIndicator()) : Column(
         children: [
           Expanded(
             child: Container(
@@ -247,25 +252,35 @@ class _SingleBetPageState extends State<SingleBetPage>
                   GestureDetector(
                     // onTap: () {
                     //   double currentBalance = double.tryParse(balance) ?? 0.0;
-                    //   double betAmount =
-                    //       double.tryParse(_rsController.text) ?? 0.0;
-                    //   if (_rsController.text.isNotEmpty &&
-                    //       _betController.text.isNotEmpty) {
-                    //     if (betAmount <= currentBalance) {
-                    //       // Add the bet locally to the betHistory list
-                    //       setState(() {
-                    //         betHistory.add({
-                    //           'bet_number': _betController.text,
-                    //           'bet_amount': _rsController.text,
-                    //           'isPlaced': false, // Initialize isPlaced
+                    //   double betAmount = double.tryParse(_rsController.text) ?? 0.0;
+                    //
+                    //   // Check if both fields are not empty
+                    //   if (_rsController.text.isNotEmpty && _betController.text.isNotEmpty) {
+                    //     // Check if the bet amount is greater than or equal to 10
+                    //     if (betAmount >= 10) {
+                    //       // Calculate the total bet amount by summing up existing bets
+                    //       double totalBetAmount = betHistory
+                    //           .map((bet) => double.tryParse(bet['bet_amount']) ?? 0.0)
+                    //           .fold(0, (prev, current) => prev + current);
+                    //
+                    //       // Check if the total bet amount plus the new bet is within the balance
+                    //       if (totalBetAmount + betAmount <= currentBalance) {
+                    //         // Add the bet locally to the betHistory list
+                    //         setState(() {
+                    //           betHistory.add({
+                    //             'bet_number': _betController.text,
+                    //             'bet_amount': _rsController.text,
+                    //             'isPlaced': false, // Initialize isPlaced
+                    //           });
                     //         });
-                    //       });
-                    //       // Clear the input fields
-                    //       _betController.clear();
-                    //       _rsController.clear();
+                    //         // Clear the input fields
+                    //         _betController.clear();
+                    //         _rsController.clear();
+                    //       } else {
+                    //         _showSnackBar('Total bet amount exceeds available balance.');
+                    //       }
                     //     } else {
-                    //       _showSnackBar(
-                    //           'Bet amount exceeds available balance.');
+                    //       _showSnackBar('Minimum bet amount is 10.');
                     //     }
                     //   } else {
                     //     _showSnackBar('Please enter values for both fields.');
@@ -274,25 +289,37 @@ class _SingleBetPageState extends State<SingleBetPage>
                     onTap: () {
                       double currentBalance = double.tryParse(balance) ?? 0.0;
                       double betAmount = double.tryParse(_rsController.text) ?? 0.0;
+                      String betNumber = _betController.text;
 
                       // Check if both fields are not empty
-                      if (_rsController.text.isNotEmpty && _betController.text.isNotEmpty) {
+                      if (betNumber.isNotEmpty && _rsController.text.isNotEmpty) {
                         // Check if the bet amount is greater than or equal to 10
                         if (betAmount >= 10) {
-                          if (betAmount <= currentBalance) {
-                            // Add the bet locally to the betHistory list
-                            setState(() {
-                              betHistory.add({
-                                'bet_number': _betController.text,
-                                'bet_amount': _rsController.text,
-                                'isPlaced': false, // Initialize isPlaced
-                              });
-                            });
-                            // Clear the input fields
-                            _betController.clear();
-                            _rsController.clear();
+                          // Check for duplicate bet number
+                          if (isDuplicateBet(betNumber)) {
+                            _showSnackBar('Duplicate bet number: $betNumber');
                           } else {
-                            _showSnackBar('Bet amount exceeds available balance.');
+                            // Calculate the total bet amount by summing up existing bets
+                            double totalBetAmount = betHistory
+                                .map((bet) => double.tryParse(bet['bet_amount']) ?? 0.0)
+                                .fold(0, (prev, current) => prev + current);
+
+                            // Check if the total bet amount plus the new bet is within the balance
+                            if (totalBetAmount + betAmount <= currentBalance) {
+                              // Add the bet locally to the betHistory list
+                              setState(() {
+                                betHistory.add({
+                                  'bet_number': betNumber,
+                                  'bet_amount': _rsController.text,
+                                  'isPlaced': false, // Initialize isPlaced
+                                });
+                              });
+                              // Clear the input fields
+                              _betController.clear();
+                              _rsController.clear();
+                            } else {
+                              _showSnackBar('Total bet amount exceeds available balance.');
+                            }
                           }
                         } else {
                           _showSnackBar('Minimum bet amount is 10.');
@@ -301,6 +328,8 @@ class _SingleBetPageState extends State<SingleBetPage>
                         _showSnackBar('Please enter values for both fields.');
                       }
                     },
+
+
 
                     child: Container(
                       width: 300.w,
@@ -471,11 +500,17 @@ class _SingleBetPageState extends State<SingleBetPage>
   }
 
   void _confirmBets() async {
+    // setState(() {
+    //   isLoading = true;
+    // });
     for (var bet in betHistory) {
       double currentBalance = double.tryParse(balance) ?? 0.0;
       double betAmount = double.tryParse(bet['bet_amount']) ?? 0.0;
       if (betAmount <= currentBalance) {
         // Send each bet to the API one by one
+        setState(() {
+          isLoading = true;
+        });
         await _sendBetRequest(
           uid: userId!,
           game_id: widget.mainGameId,
@@ -487,6 +522,7 @@ class _SingleBetPageState extends State<SingleBetPage>
         // Update the isPlaced field for the placed bet
         setState(() {
           bet['isPlaced'] = true;
+          isLoading = false;
         });
       } else {
         _showSnackBar('Bet amount exceeds available balance.');
@@ -521,6 +557,8 @@ class _SingleBetPageState extends State<SingleBetPage>
     if (response.statusCode == 200) {
       final jsonResponse = response.body;
       final parsedResponse = json.decode(jsonResponse);
+      Color alertColor = Colors.red;
+
       if (parsedResponse.containsKey('message')) {
         final message = parsedResponse['message'];
         // ScaffoldMessenger.of(context).showSnackBar(
@@ -528,7 +566,26 @@ class _SingleBetPageState extends State<SingleBetPage>
         // );
         if (message == "User Bet Successful") {
           _fetchBalance();
+          alertColor = Colors.green;
         }
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Alert"),
+              content: Text(message),
+              backgroundColor: alertColor, // Set the background color
+              actions: <Widget>[
+                TextButton(
+                  child: Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
       } else {
         print('API Response: Unknown');
       }

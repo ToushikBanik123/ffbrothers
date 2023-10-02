@@ -3,11 +3,59 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 
 import '../Provider/AppProvider.dart';
+import 'UPIAddMoney.dart';
 import 'home.dart';
+
+class ChosePayment extends StatelessWidget {
+  const ChosePayment({Key? key}) : super(key: key);
+  //animation_money
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Lottie.asset(
+            'assets/animation/animation_money.json',
+            fit: BoxFit.cover,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => UPIpage()),
+                  );
+                },
+                child: Text("Add Money"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddPoint()),
+                  );
+                },
+                child: Text("Claim Money"),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 50.sp,
+          )
+        ],
+      ),
+    );
+  }
+}
 
 class AddPoint extends StatefulWidget {
   const AddPoint({Key? key}) : super(key: key);
@@ -53,7 +101,7 @@ class _AddPointState extends State<AddPoint> {
   void _validateAmount(String value) {
     final amount = int.tryParse(value);
     setState(() {
-      _isValidAmount = amount != null && amount >= 500;
+      _isValidAmount = amount != null && amount >= 300;
     });
   }
 
@@ -62,7 +110,10 @@ class _AddPointState extends State<AddPoint> {
     final transactionId = _transactionIdController.text;
     String? userId = Provider.of<AppProvider>(context, listen: false).user?.id;
 
-    if (amount.isEmpty || transactionId.isEmpty || int.tryParse(amount) == null || int.parse(amount) < 500) {
+    if (amount.isEmpty ||
+        transactionId.isEmpty ||
+        int.tryParse(amount) == null ||
+        int.parse(amount) < 300) {
       // Check if amount and transactionId are not empty, and amount is greater than or equal to 100
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Invalid amount or transaction ID")),
@@ -80,6 +131,8 @@ class _AddPointState extends State<AddPoint> {
         "transaction_id": transactionId,
       },
     );
+
+    print(response.statusCode.toString());
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
@@ -100,13 +153,12 @@ class _AddPointState extends State<AddPoint> {
       }
     } else {
       // Handle the case when the API call fails
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to submit fund request.")),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(content: Text("Failed to submit fund request.")),
+      // );
     }
     Navigator.pop(context);
   }
-
 
   @override
   void dispose() {
@@ -127,23 +179,29 @@ class _AddPointState extends State<AddPoint> {
           padding: EdgeInsets.all(16.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Minimum Deposit Amount \₹ 500',
+                'Minimum Deposit Amount \₹ 300',
                 style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 20.h),
+              SizedBox(
+                height: 20.h,
+                width: double.infinity,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     'Add Money : 9330441646',
-                    style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
               ConstrainedBox(
-                constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
+                constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.4),
                 child: ListView.builder(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
@@ -179,12 +237,21 @@ class _AddPointState extends State<AddPoint> {
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: upiId));
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('UPI ID copied to clipboard: $upiId')),
+                            SnackBar(
+                                content:
+                                    Text('UPI ID copied to clipboard: $upiId')),
                           );
                         },
                       ),
                     );
                   },
+                ),
+              ),
+              Center(
+                child: Image.asset(
+                  height: 200.sp,
+                  width: 200.sp,
+                  "assets/images/qr.png",
                 ),
               ),
               SizedBox(height: 10.h),
@@ -204,7 +271,8 @@ class _AddPointState extends State<AddPoint> {
                     borderRadius: BorderRadius.circular(50.r),
                   ),
                   hintText: 'Enter Amount',
-                  errorText: !_isValidAmount ? 'Amount must be at least ₹ 500' : null,
+                  errorText:
+                      !_isValidAmount ? 'Amount must be at least ₹ 300' : null,
                 ),
               ),
               SizedBox(height: 30.h),
@@ -221,8 +289,8 @@ class _AddPointState extends State<AddPoint> {
               GestureDetector(
                 onTap: _isValidAmount && paymentGateway != null
                     ? () async {
-                  await _submitFundRequest();
-                }
+                        await _submitFundRequest();
+                      }
                     : null,
                 child: Container(
                   width: double.infinity,

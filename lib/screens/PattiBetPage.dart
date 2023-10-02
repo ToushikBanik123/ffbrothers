@@ -16,16 +16,15 @@ import 'gameBajiList.dart';
 class PattiBetPage extends StatefulWidget {
   final Game game;
   final String mainGameId;
-  PattiBetPage({
-    required this.game,
-    required this.mainGameId,
-    Key? key}) : super(key: key);
+  PattiBetPage({required this.game, required this.mainGameId, Key? key})
+      : super(key: key);
 
   @override
   State<PattiBetPage> createState() => _PattiBetPageState();
 }
 
-class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderStateMixin{
+class _PattiBetPageState extends State<PattiBetPage>
+    with SingleTickerProviderStateMixin {
   TextEditingController _betController = TextEditingController();
   TextEditingController _rsController = TextEditingController();
   String balance = 'Loading...';
@@ -36,7 +35,7 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
   String? editedBetNumber;
   String? editedBetAmount;
   int? editedBetIndex;
-
+  bool isLoading = false;
 
   Future<void> _fetchBalance() async {
     final uri = Uri.parse('$baseUrl/wallet_balance.php');
@@ -134,13 +133,17 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
     );
   }
 
-
   @override
   void initState() {
     super.initState();
 
     userId = Provider.of<AppProvider>(context, listen: false).user?.id;
     _fetchBalance();
+  }
+
+  // Define a function to check for duplicate bet numbers
+  bool isDuplicateBet(String betNumber) {
+    return betHistory.any((bet) => bet['bet_number'] == betNumber);
   }
 
   @override
@@ -151,7 +154,7 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
       appBar: AppBar(
         backgroundColor: Colors.red,
         title: Text(
-          'FF King',
+          'FF Brothers',
           style: GoogleFonts.dancingScript(
             fontSize: 25.sp,
             fontWeight: FontWeight.bold,
@@ -178,15 +181,17 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
                   color: Colors.white,
                 ),
               ),
-              SizedBox(width: 30.sp,),
+              SizedBox(
+                width: 30.sp,
+              ),
             ],
           ),
         ],
       ),
-      body: Column(
+      body:   isLoading ? Center(child: CircularProgressIndicator()) : Column(
         children: [
           Expanded(
-            child:   Container(
+            child: Container(
               height: screenHeight.h,
               width: screenWidth.w,
               child: Column(
@@ -223,7 +228,8 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
                                 borderRadius: BorderRadius.circular(10.r),
                               ),
                               hintText: 'Enter Bet Number',
-                              counterText: '', // This line hides the character count
+                              counterText:
+                                  '', // This line hides the character count
                             ),
                           ),
                         ),
@@ -245,28 +251,45 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
                   ),
                   SizedBox(height: 30.h),
                   GestureDetector(
+
                     onTap: () {
                       double currentBalance = double.tryParse(balance) ?? 0.0;
-                      double betAmount = double.tryParse(_rsController.text) ?? 0.0;
+                      double betAmount =
+                          double.tryParse(_rsController.text) ?? 0.0;
+                      String betNumber = _betController.text;
 
                       // Check if both fields are not empty
-                      if (_rsController.text.isNotEmpty && _betController.text.isNotEmpty) {
+                      if (betNumber.isNotEmpty &&
+                          _rsController.text.isNotEmpty) {
                         // Check if the bet amount is greater than or equal to 5
                         if (betAmount >= 5) {
-                          if (betAmount <= currentBalance) {
-                            // Add the bet locally to the betHistory list
-                            setState(() {
-                              betHistory.add({
-                                'bet_number': _betController.text,
-                                'bet_amount': _rsController.text,
-                                'isPlaced': false, // Initialize isPlaced
-                              });
-                            });
-                            // Clear the input fields
-                            _betController.clear();
-                            _rsController.clear();
+                          // Check for duplicate bet number
+                          if (isDuplicateBet(betNumber)) {
+                            _showSnackBar('Duplicate bet number: $betNumber');
                           } else {
-                            _showSnackBar('Bet amount exceeds available balance.');
+                            // Calculate the total bet amount by summing up existing bets
+                            double totalBetAmount = betHistory
+                                .map((bet) =>
+                                    double.tryParse(bet['bet_amount']) ?? 0.0)
+                                .fold(0, (prev, current) => prev + current);
+
+                            // Check if the total bet amount plus the new bet is within the balance
+                            if (totalBetAmount + betAmount <= currentBalance) {
+                              // Add the bet locally to the betHistory list
+                              setState(() {
+                                betHistory.add({
+                                  'bet_number': betNumber,
+                                  'bet_amount': _rsController.text,
+                                  'isPlaced': false, // Initialize isPlaced
+                                });
+                              });
+                              // Clear the input fields
+                              _betController.clear();
+                              _rsController.clear();
+                            } else {
+                              _showSnackBar(
+                                  'Total bet amount exceeds available balance.');
+                            }
                           }
                         } else {
                           _showSnackBar('Minimum bet amount is 5.');
@@ -276,34 +299,6 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
                       }
                     },
 
-                    // onTap: () {
-                    //   double currentBalance =
-                    //       double.tryParse(balance) ?? 0.0;
-                    //   double betAmount =
-                    //       double.tryParse(_rsController.text) ?? 0.0;
-                    //   if (_rsController.text.isNotEmpty &&
-                    //       _betController.text.isNotEmpty) {
-                    //     if (betAmount <= currentBalance) {
-                    //       // Add the bet locally to the betHistory list
-                    //       setState(() {
-                    //         betHistory.add({
-                    //           'bet_number': _betController.text,
-                    //           'bet_amount': _rsController.text,
-                    //           'isPlaced': false, // Initialize isPlaced
-                    //         });
-                    //       });
-                    //       // Clear the input fields
-                    //       _betController.clear();
-                    //       _rsController.clear();
-                    //     } else {
-                    //       _showSnackBar(
-                    //           'Bet amount exceeds available balance.');
-                    //     }
-                    //   } else {
-                    //     _showSnackBar(
-                    //         'Please enter values for both fields.');
-                    //   }
-                    // },
                     child: Container(
                       width: 300.w,
                       height: 47.h,
@@ -335,28 +330,39 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
                               color: Colors.red,
                             ),
                             child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16.sp, vertical: 12.sp),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
-                                      width : 100.sp,
+                                      width: 100.sp,
                                       alignment: Alignment.center,
-                                      child: Text('Bet Number', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                                      child: Text('Bet Number',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold))),
                                   Container(
-                                      width : 100.sp,
+                                      width: 100.sp,
                                       alignment: Alignment.center,
-                                      child: Text('Bet Amount', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                                      child: Text('Bet Amount',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold))),
                                   Container(
-                                      width : 100.sp,
+                                      width: 100.sp,
                                       alignment: Alignment.center,
-                                      child: Text('Action', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                                      child: Text('Action',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold))),
                                 ],
                               ),
                             ),
                           );
-                        }else{
-                          final item = betHistory[index - 1 ];
+                        } else {
+                          final item = betHistory[index - 1];
                           final bool isPlaced = item['isPlaced'] ?? false;
                           return Container(
                             decoration: BoxDecoration(
@@ -365,21 +371,22 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
                                   : Colors.white,
                             ),
                             child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
                               child: Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
-                                      width : 100.sp,
+                                      width: 100.sp,
                                       alignment: Alignment.center,
                                       child: Text('${item['bet_number']}')),
                                   Container(
-                                      width : 100.sp,
+                                      width: 100.sp,
                                       alignment: Alignment.center,
                                       child: Text('${item['bet_amount']}')),
                                   Container(
-                                    width : 100.sp,
+                                    width: 100.sp,
                                     alignment: Alignment.center,
                                     child: Row(
                                       children: [
@@ -402,14 +409,14 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
                                   ),
                                   if (isPlaced)
                                     Container(
-                                      width : 50.sp,
+                                      width: 50.sp,
                                       alignment: Alignment.center,
                                       child: Text(
                                         'Placed',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           decoration:
-                                          TextDecoration.lineThrough,
+                                              TextDecoration.lineThrough,
                                         ),
                                       ),
                                     ),
@@ -440,7 +447,8 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
             borderRadius: BorderRadius.circular(10.sp),
           ),
           alignment: Alignment.center,
-          child: Text("Submit",
+          child: Text(
+            "Submit",
             style: TextStyle(
               color: Colors.white,
               fontSize: 18.sp,
@@ -450,9 +458,9 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-
     );
   }
+
   void _deleteBet(int index) {
     setState(() {
       betHistory.removeAt(index);
@@ -465,6 +473,10 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
       double betAmount = double.tryParse(bet['bet_amount']) ?? 0.0;
       if (betAmount <= currentBalance) {
         // Send each bet to the API one by one
+        setState(() {
+          isLoading = true;
+        });
+
         await _sendBetRequest(
           uid: userId!,
           game_id: widget.mainGameId,
@@ -472,10 +484,12 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
           bet_on: 'Patti',
           bet_number: bet['bet_number'],
           bet_amount: bet['bet_amount'],
+          context: context,
         );
         // Update the isPlaced field for the placed bet
         setState(() {
           bet['isPlaced'] = true;
+          isLoading = false;
         });
       } else {
         _showSnackBar('Bet amount exceeds available balance.');
@@ -485,6 +499,45 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
     betHistory = [];
   }
 
+  // Future<void> _sendBetRequest({
+  //   required String uid,
+  //   required String game_id,
+  //   required String game_baji_id,
+  //   required String bet_on,
+  //   required String bet_number,
+  //   required String bet_amount,
+  // }) async {
+  //   final uri = Uri.parse("$baseUrl/user_bet.php");
+  //   final response = await http.post(
+  //     uri,
+  //     body: {
+  //       'uid': uid,
+  //       'game_id': game_id,
+  //       'game_baji_id': game_baji_id,
+  //       'bet_on': bet_on,
+  //       'bet_number': bet_number,
+  //       'bet_amount': bet_amount,
+  //     },
+  //   );
+  //
+  //   if (response.statusCode == 200) {
+  //     final jsonResponse = response.body;
+  //     final parsedResponse = json.decode(jsonResponse);
+  //     if (parsedResponse.containsKey('message')) {
+  //       final message = parsedResponse['message'];
+  //       // ScaffoldMessenger.of(context).showSnackBar(
+  //       //   SnackBar(content: Text(message)),
+  //       // );
+  //       if (message == "User Bet Successful") {
+  //         _fetchBalance();
+  //       }
+  //     } else {
+  //       print('API Response: Unknown');
+  //     }
+  //   } else {
+  //     print('API Error: ${response.statusCode}');
+  //   }
+  // }
   Future<void> _sendBetRequest({
     required String uid,
     required String game_id,
@@ -492,6 +545,7 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
     required String bet_on,
     required String bet_number,
     required String bet_amount,
+    required BuildContext context,
   }) async {
     final uri = Uri.parse("$baseUrl/user_bet.php");
     final response = await http.post(
@@ -511,12 +565,31 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
       final parsedResponse = json.decode(jsonResponse);
       if (parsedResponse.containsKey('message')) {
         final message = parsedResponse['message'];
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(content: Text(message)),
-        // );
+        Color alertColor = Colors.red; // Default color is red
+
         if (message == "User Bet Successful") {
           _fetchBalance();
+          alertColor = Colors.green;
         }
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Alert"),
+              content: Text(message),
+              backgroundColor: alertColor, // Set the background color
+              actions: <Widget>[
+                TextButton(
+                  child: Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
       } else {
         print('API Response: Unknown');
       }
@@ -524,4 +597,6 @@ class _PattiBetPageState extends State<PattiBetPage>  with SingleTickerProviderS
       print('API Error: ${response.statusCode}');
     }
   }
+
+
 }

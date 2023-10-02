@@ -42,6 +42,7 @@ class IconTextField extends StatefulWidget {
   final bool isPasswordType;
   final TextEditingController controller;
   final TextInputType keyboardType;
+  final bool enabled;
 
   IconTextField({
     required this.text,
@@ -49,6 +50,7 @@ class IconTextField extends StatefulWidget {
     required this.isPasswordType,
     required this.controller,
     required this.keyboardType,
+    required this.enabled,
   });
 
   @override
@@ -66,6 +68,7 @@ class _IconTextFieldState extends State<IconTextField> {
       enableSuggestions: !widget.isPasswordType,
       autocorrect: !widget.isPasswordType,
       cursorColor: Colors.white,
+      enabled: widget.enabled,
       style: TextStyle(color: Colors.white),
       decoration: InputDecoration(
         prefixIcon: Icon(

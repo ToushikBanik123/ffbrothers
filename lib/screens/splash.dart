@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:ff/Provider/notification_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../utils/const.dart';
@@ -20,12 +21,32 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
 
+  late int status;
+
+
   //LoginPage()
 
+  NotificationServices notificationServices = NotificationServices();
   @override
   void initState() {
     super.initState();
-    // _checkAutoLogin();
+
+    // notificationServices.requestNotificationPermission();
+    // notificationServices.firebaseInit();
+    // // notificationServices.isTokenRefresh();
+    // notificationServices.getDeviceToken().then((value){
+    //   print("Device Token");
+    //   print(value.toString());
+    // });
+
+    notificationServices.requestNotificationPermission();
+    notificationServices.firebaseInit(context);
+    notificationServices.setupInteractMessage(context);
+    notificationServices.getDeviceToken().then((value) {
+      print("Device Token");
+      print(value.toString());
+    });
+
     Timer(Duration(seconds: 2), () {
       _checkAutoLogin();
     });
@@ -107,6 +128,30 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
+  Future<Map<String, dynamic>> fetchDataFromApi() async {
+    final apiUrl = '$baseUrl/playstore.php'; // Replace with your API URL
+
+    final response = await http.get(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+
+      // You can now access the data from the API like this:
+      final List<dynamic> values = data['value'];
+      final int id = values[0]['id'];
+      setState(() {
+        status = id;
+      });
+
+      return data;
+    } else {
+      // If the server did not return a 200 OK response,
+      // throw an exception or handle the error accordingly.
+      throw Exception('Failed to load data from the API');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,3 +179,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
+
+

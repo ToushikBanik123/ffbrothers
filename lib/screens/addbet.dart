@@ -235,7 +235,7 @@
 //       appBar: AppBar(
 //         backgroundColor: Colors.red,
 //         title: Text(
-//           'FF King',
+//           'FF Brothers',
 //           style: GoogleFonts.dancingScript(
 //             fontSize: 25.sp,
 //             fontWeight: FontWeight.bold,
@@ -561,7 +561,7 @@ import 'gameBajiList.dart';
 //       appBar: AppBar(
 //         backgroundColor: Colors.red,
 //         title: Text(
-//           'FF King',
+//           'FF Brothers',
 //           style: GoogleFonts.dancingScript(
 //             fontSize: 25.sp,
 //             fontWeight: FontWeight.bold,
@@ -971,7 +971,7 @@ class _AddBetState extends State<AddBet>
       appBar: AppBar(
         backgroundColor: Colors.red,
         title: Text(
-          'FF King',
+          'FF Brothers',
           style: GoogleFonts.dancingScript(
             fontSize: 25.sp,
             fontWeight: FontWeight.bold,

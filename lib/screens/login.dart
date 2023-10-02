@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:ff/screens/signup.dart';
+import 'package:ff/screens/welcome_aboard_screen.dart';
 import 'package:ff/utils/const.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -133,6 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                         isPasswordType: false,
                         controller: _phonenumberController,
                         keyboardType: TextInputType.phone,
+                        enabled: true,
                       ),
                       SizedBox(height: 16.h),
                       IconTextField(
@@ -141,6 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                         isPasswordType: true,
                         controller: _passwordController,
                         keyboardType: TextInputType.visiblePassword,
+                        enabled: true,
                       ),
                       SizedBox(height: 16.h), // Add ".h" for height scaling
                       Row(
@@ -151,7 +154,8 @@ class _LoginPageState extends State<LoginPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => SignUp()),
+                                    // builder: (context) => SignUp(phoneNumber: "9800515347",)),
+                                    builder: (context) => WelcomeAboardScreen()),
                               );
                             },
                             child: const Text(

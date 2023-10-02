@@ -50,7 +50,8 @@ class gameListUi extends StatelessWidget {
                               GameList.category,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF0D1282),
+                                // color: Color(0xFF0D1282),
+                                color: Colors.red,
                                 fontSize: 16.sp,
                               ),
                             ),
@@ -74,7 +75,7 @@ class gameListUi extends StatelessWidget {
                         ),
                         CircleAvatar(
                           backgroundColor: Colors.red.shade200,
-                          radius: 27.r,
+                          radius: 20.r,
                           child: Icon(
                             Icons.play_arrow,
                             color: Colors.red,
@@ -87,8 +88,6 @@ class gameListUi extends StatelessWidget {
                 ],
               ),
             ),
-
-
             GestureDetector(
               onTap: (){
                 Navigator.push(
@@ -98,16 +97,17 @@ class gameListUi extends StatelessWidget {
               },
               child: Container(
                 height: 40.h,
-                color: Colors.yellow.shade700,
+                // color: Colors.yellow.shade700,
+                color: Color(0xFFFFFF3B),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.analytics_outlined, color: Colors.white),
+                    Icon(Icons.analytics_outlined, color: Colors.red),
                     SizedBox(width: 15.w),
                     Text(
                       'click here to open chart',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Color(0xFF0000FA),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
